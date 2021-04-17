@@ -3,7 +3,8 @@ import http from './services/httpService';
 import "./App.css";
 import config from './config.json'
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'
+import 'react-toastify/dist/ReactToastify.css';
+
 class App extends Component {
   state = {
     posts: []
@@ -41,7 +42,7 @@ class App extends Component {
     
     // Use try catch for specific errors, otherwise use the interceptor
     try{
-      await http.delete(config.apiEndpoint + '/' + post.id);
+      await http.delete('s' + config.apiEndpoint + '/' + post.id);
     } catch (ex) {
       // Expected (404: not found, 400: bad request) - Client errors
       // - Display a specific error message 
