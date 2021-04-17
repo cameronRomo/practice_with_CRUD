@@ -2,6 +2,17 @@ import React, { Component } from "react";
 import "./App.css";
 import axios from 'axios';
 
+axios.interceptors.response.use(null, error => {
+  const expectedError = error.response && error.response.status >= 400 && error.response.status < 500
+
+  if (!expectedError){
+    console.log('Logging the error', error);
+    alert('An unexpected error occurred.');
+  }
+    
+  return Promise.reject(error);
+});
+
 const apiEndpoint = 'http://jsonplaceholder.typicode.com/posts';
 
 class App extends Component {
@@ -39,12 +50,19 @@ class App extends Component {
     const posts = this.state.posts.filter(p => p.id !== post.id);
     this.setState({ posts });
     
+    // Use try catch for specific errors, otherwise use the interceptor
     try{
-      await axios.delete(apiEndpoint + '/' + post.id)
-      throw new Error('');
+      await axios.delete(apiEndpoint + '/' + post.id);
     } catch (ex) {
-      alert('something failed while deleting a post')
+      // Expected (404: not found, 400: bad request) - Client errors
+      // - Display a specific error message 
+      if (ex.response && ex.response.status === 404)
+        alert('This post has already been deleted.')
       this.setState({ posts: originalPosts });
+        //
+      // Unexpected (network is down, server down, db down, bug)
+      // - Log them
+      // - Display a generic and friendly error message
     }
   };
 
